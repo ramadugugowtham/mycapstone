@@ -11,7 +11,7 @@ pipeline {
         stage('Deploy to AWS & Azure') {
             steps {
                 sh '''
-                ansible-playbook -i /home/ubuntu/inventory.ini nginx.yml
+                ansible-playbook -i /home/ubuntu/inventory.ini /home/ubuntu/nginx.yml
                 '''
             }
         }
