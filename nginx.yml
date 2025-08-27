@@ -1,0 +1,28 @@
+---
+- name: Deploy Nginx custom index pages
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Copy AWS index.html
+      copy:
+        src: index-aws.html
+        dest: /var/www/html/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+      when: "'aws' in group_names"
+
+    - name: Copy Azure index.html
+      copy:
+        src: index-azure.html
+        dest: /var/www/html/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+      when: "'azure' in group_names"
+
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
