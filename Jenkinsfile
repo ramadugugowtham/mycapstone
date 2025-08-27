@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        INVENTORY = "/home/ubuntu/inventory.ini"
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -12,18 +8,10 @@ pipeline {
             }
         }
 
-        stage('Deploy to AWS') {
+        stage('Deploy') {
             steps {
                 sh '''
-                ansible-playbook -i ${INVENTORY} nginx.yml --limit aws
-                '''
-            }
-        }
-
-        stage('Deploy to Azure') {
-            steps {
-                sh '''
-                ansible-playbook -i ${INVENTORY} nginx.yml --limit azure
+                ansible-playbook -i inventory.ini nginx.yml
                 '''
             }
         }
@@ -31,7 +19,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment successful! Check AWS & Azure web pages."
+            echo "✅ Deployment successful!"
         }
         failure {
             echo "❌ Deployment failed! Check Jenkins logs."
