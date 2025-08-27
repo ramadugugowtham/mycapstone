@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         INVENTORY = "/home/ubuntu/inventory.ini"
-        PLAYBOOK  = "/home/ubuntu/nginx.yml"
     }
 
     stages {
@@ -16,9 +15,7 @@ pipeline {
         stage('Deploy to AWS') {
             steps {
                 sh '''
-                echo "Deploying to AWS..."
-                ansible -i ${INVENTORY} aws -m copy -a "src=index-aws.html dest=/var/www/html/index.html owner=www-data group=www-data mode=0644"
-                ansible -i ${INVENTORY} aws -m service -a "name=nginx state=restarted"
+                ansible-playbook -i ${INVENTORY} nginx.yml --limit aws
                 '''
             }
         }
@@ -26,18 +23,7 @@ pipeline {
         stage('Deploy to Azure') {
             steps {
                 sh '''
-                echo "Deploying to Azure..."
-                ansible -i ${INVENTORY} azure -m copy -a "src=index-azure.html dest=/var/www/html/index.html owner=www-data group=www-data mode=0644"
-                ansible -i ${INVENTORY} azure -m service -a "name=nginx state=restarted"
-                '''
-            }
-        }
-
-        stage('Run Playbook') {
-            steps {
-                sh '''
-                echo "Running Ansible Playbook..."
-                ansible-playbook -i ${INVENTORY} ${PLAYBOOK}
+                ansible-playbook -i ${INVENTORY} nginx.yml --limit azure
                 '''
             }
         }
@@ -45,7 +31,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment successful! Check AWS and Azure IPs in browser."
+            echo "✅ Deployment successful! Check AWS & Azure web pages."
         }
         failure {
             echo "❌ Deployment failed! Check Jenkins logs."
